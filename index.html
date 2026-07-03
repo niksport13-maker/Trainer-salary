@@ -46,6 +46,30 @@
 
   main{padding:4px 20px 0;}
 
+  .main-nav{display:flex; gap:18px; margin-top:14px; border-bottom:1px solid var(--line);}
+  .main-tab{
+    padding:8px 0 10px; font-size:14px; font-weight:600; color:var(--muted);
+    cursor:pointer; position:relative;
+  }
+  .main-tab.active{color:var(--amber);}
+  .main-tab.active::after{
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--amber);
+  }
+
+  .backup-row{display:flex; gap:8px; margin-top:10px;}
+  .backup-btn{
+    flex:1; background:var(--surface); border:1px solid var(--line); color:var(--muted);
+    border-radius:10px; padding:8px 6px; font-size:11.5px; font-weight:600;
+    font-family:'Inter',sans-serif; cursor:pointer;
+  }
+  .backup-btn:active{background:var(--surface2);}
+
+  .day-group-header{
+    font-family:'Oswald',sans-serif; font-size:13.5px; letter-spacing:.04em;
+    color:var(--teal); text-transform:uppercase; margin:16px 2px 8px;
+  }
+  .day-group-header:first-child{margin-top:2px;}
+
   .hero-card{
     background:linear-gradient(155deg, var(--surface2), var(--surface));
     border:1px solid var(--line);
@@ -142,7 +166,21 @@
   .field input, .field select{
     width:100%; background:var(--surface2); border:1px solid var(--line);
     color:var(--text); border-radius:10px; padding:11px 12px; font-size:15px;
-    font-family:'Inter',sans-serif;
+    font-family:'Inter',sans-serif; height:46px; box-sizing:border-box;
+    -webkit-appearance:none; appearance:none;
+  }
+  .field input[type="date"], .field input[type="month"]{
+    -webkit-min-logical-width: 0;
+  }
+  .field input[type="date"]::-webkit-calendar-picker-indicator,
+  .field input[type="month"]::-webkit-calendar-picker-indicator{
+    filter: invert(0.7);
+  }
+  .field select{
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9" viewBox="0 0 14 9"><path d="M1 1l6 6 6-6" stroke="%238B93A1" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    padding-right:32px;
   }
   .field input:focus, .field select:focus{outline:2px solid var(--amber); border-color:var(--amber);}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
@@ -172,6 +210,57 @@
     transition:opacity .2s;
   }
   .toast.show{opacity:1;}
+
+  .rank-row{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px;
+  }
+  .rank-row .rnum{font-family:'Oswald',sans-serif; font-size:16px; color:var(--muted); width:20px;}
+  .rank-row .rmid{flex:1; min-width:0;}
+  .rank-row .rtype{font-size:14.5px; font-weight:600;}
+  .rank-row .rmeta{font-size:12px; color:var(--muted); margin-top:2px;}
+  .rank-row .rfill{font-family:'Oswald',sans-serif; font-size:19px;}
+  .rank-row.best .rfill{color:var(--teal);}
+  .rank-row.worst .rfill{color:var(--danger);}
+
+  .schedule-section{margin-bottom:22px;}
+  .date-strip{
+    display:flex; gap:6px; overflow-x:auto; padding:2px 2px 8px;
+    scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
+  }
+  .date-strip::-webkit-scrollbar{display:none;}
+  .date-chip{
+    scroll-snap-align:start; flex:0 0 auto; width:36px; height:36px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:9px; background:var(--surface);
+    border:1px solid var(--line); cursor:pointer;
+    -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;
+    transform:translateZ(0); -webkit-transform:translateZ(0); backface-visibility:hidden;
+  }
+  .date-chip.active{background:var(--amber-dim); border-color:var(--amber);}
+  .date-chip .wd{font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; line-height:1;}
+  .date-chip.active .wd{color:var(--amber);}
+  .date-chip .dn{font-family:'Oswald',sans-serif; font-size:13px; line-height:1; color:var(--text);}
+  .date-chip.active .dn{color:var(--amber);}
+  .date-chip .dot{width:3px; height:3px; border-radius:2px; background:var(--teal); margin-top:1px;}
+  .date-chip .dot.empty{visibility:hidden;}
+
+  .schedule-date-label{
+    font-size:12.5px; color:var(--muted); font-weight:600; margin:2px 2px 8px;
+  }
+
+  .add-schedule-btn{
+    width:100%; background:var(--surface); border:1px dashed var(--line); color:var(--amber);
+    border-radius:12px; padding:11px; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;
+  }
+  .manage-link{
+    display:block; width:100%; background:none; border:none; color:var(--muted);
+    font-size:11.5px; padding:10px 0 0; cursor:pointer; text-decoration:underline;
+  }
+  .repeat-badge{color:var(--teal); font-size:11px; margin-left:4px;}
+  .toggle-row{display:flex; align-items:center; gap:10px; margin:14px 0 6px;}
+  .toggle-row input{width:18px; height:18px;}
+  .toggle-row label{font-size:13.5px; color:var(--text); font-weight:500;}
 </style>
 </head>
 <body>
@@ -182,9 +271,19 @@
     <div class="display" id="todayDate">—</div>
     <div class="weekday" id="todayWeekday">—</div>
   </div>
+  <div class="main-nav">
+    <div class="main-tab active" data-view="home">Головна</div>
+    <div class="main-tab" data-view="stats">Статистика</div>
+  </div>
+  <div class="backup-row">
+    <button class="backup-btn" id="exportBtn">⬇ Зберегти копію</button>
+    <button class="backup-btn" id="importBtn">⬆ Завантажити копію</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+  </div>
 </header>
 
 <main>
+<div id="homeView">
   <div class="hero-card">
     <div class="hero-label">Заробіток за сьогодні</div>
     <div class="hero-amount"><span id="todayEarnings">0</span><span>грн</span></div>
@@ -204,6 +303,15 @@
     <div class="tab active" data-period="today">Сьогодні</div>
     <div class="tab" data-period="week">Тиждень</div>
     <div class="tab" data-period="month">Місяць</div>
+  </div>
+
+  <div class="schedule-section">
+    <div class="section-title"><span>Розклад</span></div>
+    <div class="date-strip" id="dateStrip"></div>
+    <div class="schedule-date-label" id="scheduleDateLabel"></div>
+    <div id="scheduleList"></div>
+    <button class="add-schedule-btn" id="addScheduleBtn">＋ Додати в розклад</button>
+    <button class="manage-link" id="manageTemplatesBtn">Керувати повторюваними тренуваннями</button>
   </div>
 
   <div class="field" id="weekPickerWrap" style="display:none; margin:10px 2px 4px;">
@@ -228,6 +336,27 @@
     </div>
     <div id="clubList"></div>
   </div>
+</div>
+
+<div id="statsView" style="display:none;">
+  <div class="field" style="margin:6px 2px 14px;">
+    <label>Місяць для аналізу</label>
+    <input type="month" id="statsMonthPicker">
+  </div>
+
+  <div class="section-title"><span>Заповненість &gt; 80%</span></div>
+  <div id="statsBest"></div>
+
+  <div class="section-title"><span>Заповненість &lt; 30%</span></div>
+  <div id="statsWorst"></div>
+
+  <div class="hero-card" style="padding:18px 16px 14px; margin-top:22px;">
+    <div class="hero-label">Заробіток по днях місяця</div>
+    <div style="position:relative; height:170px; margin-top:12px;">
+      <canvas id="dailyChart"></canvas>
+    </div>
+  </div>
+</div>
 </main>
 
 <button class="fab" id="openAdd">＋ Додати тренування</button>
@@ -280,6 +409,86 @@
   </div>
 </div>
 
+<div class="sheet-overlay" id="clubOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="clubOverlayTitle">Клуб</h2>
+    <div id="clubOverlayList"></div>
+    <button class="cancel-btn" id="clubOverlayClose">Закрити</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="scheduleFillOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="fillTitle">Заповнити тренування</h2>
+    <div class="row2">
+      <div class="field">
+        <label>Макс. місткість групи</label>
+        <input type="number" id="sfCap" min="1" placeholder="10">
+      </div>
+      <div class="field">
+        <label>Кількість людей</label>
+        <input type="number" id="sfCount" min="0" placeholder="8">
+      </div>
+    </div>
+    <div class="preview" id="sfPreview">Заповніть місткість і кількість людей</div>
+    <button class="save-btn" id="sfSaveBtn">Зберегти</button>
+    <button class="cancel-btn" id="sfCancelBtn">Скасувати</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="scheduleDetailOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="detailTitle">Тренування</h2>
+    <div id="detailStats"></div>
+    <button class="save-btn" id="detailEditBtn">Редагувати</button>
+    <button class="cancel-btn" id="detailDeleteBtn" style="color:var(--danger);">Видалити запис</button>
+    <button class="cancel-btn" id="detailCloseBtn">Закрити</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="scheduleAddOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="scheduleAddTitle">Додати в розклад</h2>
+    <div class="row2">
+      <div class="field">
+        <label>Час</label>
+        <select id="saTime"></select>
+      </div>
+      <div class="field">
+        <label>Клуб</label>
+        <select id="saClub"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Тип тренування</label>
+      <select id="saType"></select>
+    </div>
+    <div class="field">
+      <label>Макс. місткість групи (можна залишити порожнім)</label>
+      <input type="number" id="saCap" min="1" placeholder="10">
+    </div>
+    <div class="toggle-row">
+      <input type="checkbox" id="saRepeat">
+      <label for="saRepeat">Повторювати щотижня в цей день тижня</label>
+    </div>
+    <button class="save-btn" id="saSaveBtn">Додати</button>
+    <button class="cancel-btn" id="saCancelBtn">Скасувати</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="manageTemplatesOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Регулярні тренування</h2>
+    <div id="manageTemplatesList"></div>
+    <button class="cancel-btn" id="manageTemplatesClose">Закрити</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -287,12 +496,19 @@ const RATE_BASE = 550, RATE_PER_PERSON = 30, RATE_FULL_BONUS = 100, PREMIUM_SLOT
 const DEFAULT_TYPES = ["Reshape","Run","Cycle","Hot ass","Power","Games","Perfect core","Bikini body","TRX"];
 const CLUBS = ["Garag","Бажана","Жилянська","Оболонь"];
 const WEEKDAYS = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"];
+const WEEKDAYS_SHORT = ["нд","пн","вт","ср","чт","пт","сб"];
 
 let entries = [];
 let types = [...DEFAULT_TYPES];
 let currentPeriod = 'today';
 let selectedMonth = isoToday().slice(0,7);
 let selectedWeekStart = null; // ISO date string, Monday of chosen week
+let templates = []; // recurring weekly schedule slots
+let skips = [];      // "templateId|date" occurrences removed for one week
+let extras = [];     // one-off (non-recurring) schedule additions
+let selectedScheduleDate = isoToday();
+let fillContext = null;
+let detailContext = null;
 
 function calcPay(cap, count){
   if(!cap || count===''||count===null||count===undefined) return null;
@@ -336,6 +552,227 @@ function getWeeksWithEntries(){
     return {start,end};
   });
 }
+// ===== Schedule (recurring + one-off classes by date) =====
+
+function genId(){
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
+
+function getScheduleForDate(dateStr){
+  const weekday = new Date(dateStr+'T00:00:00').getDay();
+  const tItems = templates
+    .filter(t=>t.weekday===weekday && !skips.includes(t.id+'|'+dateStr))
+    .map(t=>({id:t.id, kind:'template', time:t.time, type:t.type, club:t.club, cap:t.cap}));
+  const eItems = extras
+    .filter(x=>x.date===dateStr)
+    .map(x=>({id:x.id, kind:'extra', time:x.time, type:x.type, club:x.club, cap:x.cap}));
+  let items = [...tItems, ...eItems].map(it=>{
+    const entry = entries.find(e=>e.sourceId===it.id && e.date===dateStr) || null;
+    return {...it, entry};
+  });
+  items.sort((a,b)=>a.time.localeCompare(b.time));
+  return items;
+}
+
+function renderDateStrip(){
+  const strip = document.getElementById('dateStrip');
+  if(!strip) return;
+  strip.innerHTML='';
+  const base = new Date();
+  for(let i=-7;i<=21;i++){
+    const d = new Date(base); d.setDate(base.getDate()+i);
+    const iso = toISO(d);
+    const hasItems = getScheduleForDate(iso).length>0;
+    const chip = document.createElement('div');
+    chip.className = 'date-chip'+(iso===selectedScheduleDate?' active':'');
+    chip.dataset.iso = iso;
+    const wdEl = document.createElement('div');
+    wdEl.className = 'wd';
+    wdEl.textContent = WEEKDAYS_SHORT[d.getDay()];
+    const dnEl = document.createElement('div');
+    dnEl.className = 'dn display';
+    dnEl.textContent = String(d.getDate());
+    const dotEl = document.createElement('div');
+    dotEl.className = 'dot'+(hasItems?'':' empty');
+    chip.appendChild(wdEl);
+    chip.appendChild(dnEl);
+    chip.appendChild(dotEl);
+    chip.addEventListener('click', ()=>{
+      selectedScheduleDate = iso;
+      strip.querySelectorAll('.date-chip').forEach(c=>c.classList.toggle('active', c.dataset.iso===iso));
+      renderScheduleList();
+    });
+    strip.appendChild(chip);
+  }
+  requestAnimationFrame(()=>{
+    const active = strip.querySelector('.date-chip.active');
+    if(active) active.scrollIntoView({inline:'center', block:'nearest'});
+  });
+}
+
+function renderScheduleList(){
+  const box = document.getElementById('scheduleList');
+  if(!box) return;
+  const d = new Date(selectedScheduleDate+'T00:00:00');
+  const label = document.getElementById('scheduleDateLabel');
+  if(label) label.textContent = WEEKDAYS[d.getDay()]+', '+ddmmyyyy(selectedScheduleDate);
+
+  const items = getScheduleForDate(selectedScheduleDate);
+  box.innerHTML='';
+  if(!items.length){
+    box.innerHTML = '<div class="empty">На цю дату немає запланованих тренувань.<br>Натисніть «Додати в розклад» нижче.</div>';
+    return;
+  }
+  items.forEach(it=>{
+    const row = document.createElement('div');
+    row.className='entry';
+    const repeatBadge = it.kind==='template' ? '<span class="repeat-badge">↻</span>' : '';
+    if(it.entry){
+      const fill = Math.round((it.entry.count/it.entry.cap)*100);
+      row.innerHTML = `
+        <div class="time display">${it.time}</div>
+        <div class="mid">
+          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}</div>
+          <div class="meta">${it.entry.count}/${it.entry.cap} людей · ${fill}%</div>
+        </div>
+        <div class="money display">${it.entry.pay}₴</div>
+        <button class="del" data-role="remove">✕</button>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="time display">${it.time}</div>
+        <div class="mid">
+          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}</div>
+          <div class="meta" style="color:var(--amber);">Натисніть, щоб заповнити</div>
+        </div>
+        <button class="del" data-role="remove">✕</button>
+      `;
+    }
+    row.addEventListener('click', (ev)=>{
+      if(ev.target.closest('[data-role="remove"]')) return;
+      if(it.entry) openScheduleDetail(it); else openScheduleFill(it);
+    });
+    row.querySelector('[data-role="remove"]').addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      removeScheduleOccurrence(it);
+    });
+    box.appendChild(row);
+  });
+}
+
+async function removeScheduleOccurrence(it){
+  if(it.kind==='template'){
+    skips.push(it.id+'|'+selectedScheduleDate);
+  } else {
+    extras = extras.filter(x=>x.id!==it.id);
+  }
+  if(it.entry){
+    entries = entries.filter(e=>e.id!==it.entry.id);
+    await saveEntries();
+  }
+  saveSchedule();
+  renderDateStrip();
+  renderScheduleList();
+  renderAll();
+  showToast('Прибрано з розкладу на цю дату');
+}
+
+function openScheduleFill(it, existingEntry){
+  fillContext = {it, editingId: existingEntry ? existingEntry.id : null};
+  document.getElementById('fillTitle').textContent = (existingEntry?'Редагувати':'Заповнити')+': '+it.type+' · '+it.time;
+  document.getElementById('sfCap').value = existingEntry ? existingEntry.cap : (it.cap || '');
+  document.getElementById('sfCount').value = existingEntry ? existingEntry.count : '';
+  updateSfPreview();
+  document.getElementById('scheduleFillOverlay').classList.add('open');
+}
+function updateSfPreview(){
+  const cap = document.getElementById('sfCap').value;
+  const count = document.getElementById('sfCount').value;
+  const pay = calcPay(cap, count);
+  const el = document.getElementById('sfPreview');
+  if(pay===null){
+    el.textContent = 'Заповніть місткість і кількість людей';
+  } else {
+    const fill = cap>0 ? Math.round((count/cap)*100) : 0;
+    el.innerHTML = `Заповненість <b>${fill}%</b> · Людей: <b>${count}</b> · Сума: <b>${pay} грн</b>`;
+  }
+}
+
+function openScheduleDetail(it){
+  detailContext = it;
+  document.getElementById('detailTitle').textContent = it.type+' · '+it.time;
+  const fill = Math.round((it.entry.count/it.entry.cap)*100);
+  document.getElementById('detailStats').innerHTML = `
+    <div class="preview" style="margin-top:0;">
+      Клуб: <b>${it.club}</b><br>
+      Дата: <b>${ddmmyyyy(selectedScheduleDate)}</b><br>
+      Заповненість: <b>${fill}%</b><br>
+      Кількість людей: <b>${it.entry.count}/${it.entry.cap}</b><br>
+      Сума за тренування: <b>${it.entry.pay} грн</b>
+    </div>`;
+  document.getElementById('scheduleDetailOverlay').classList.add('open');
+}
+
+function populateSelect(id, arr){
+  const sel = document.getElementById(id);
+  sel.innerHTML='';
+  arr.forEach(v=>{
+    const opt = document.createElement('option');
+    opt.value=v; opt.textContent=v;
+    sel.appendChild(opt);
+  });
+}
+function timeOptionsArray(){
+  const arr=[];
+  for(let h=7;h<=21;h++){
+    for(let m=0;m<60;m+=15){
+      if(h===21 && m>0) break;
+      arr.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'));
+    }
+  }
+  return arr;
+}
+
+function openScheduleAdd(){
+  populateSelect('saTime', timeOptionsArray());
+  populateSelect('saClub', CLUBS);
+  populateSelect('saType', types);
+  document.getElementById('saCap').value='';
+  document.getElementById('saRepeat').checked=false;
+  const d = new Date(selectedScheduleDate+'T00:00:00');
+  document.getElementById('scheduleAddTitle').textContent = 'Додати в розклад · '+WEEKDAYS[d.getDay()]+', '+ddmmyyyy(selectedScheduleDate);
+  document.getElementById('scheduleAddOverlay').classList.add('open');
+}
+
+function renderManageTemplates(){
+  const box = document.getElementById('manageTemplatesList');
+  box.innerHTML='';
+  if(!templates.length){
+    box.innerHTML = '<div class="empty">Ще немає регулярних тренувань</div>';
+    return;
+  }
+  templates.forEach(t=>{
+    const row = document.createElement('div');
+    row.className='entry';
+    row.innerHTML = `
+      <div class="mid">
+        <div class="type">${t.type} <span style="color:var(--muted); font-weight:500;">· ${t.club}</span></div>
+        <div class="meta">${WEEKDAYS[t.weekday]} · ${t.time}</div>
+      </div>
+      <button class="del" data-role="del-template">✕</button>
+    `;
+    row.querySelector('[data-role="del-template"]').addEventListener('click', ()=>{
+      templates = templates.filter(x=>x.id!==t.id);
+      saveSchedule();
+      renderManageTemplates();
+      renderDateStrip();
+      renderScheduleList();
+      showToast('Регулярне тренування прибрано');
+    });
+    box.appendChild(row);
+  });
+}
+
 function populateWeekSelect(){
   const sel = document.getElementById('weekPicker');
   sel.innerHTML='';
@@ -371,19 +808,29 @@ function populateWeekSelect(){
 
 async function loadData(){
   try{
-    const r = await window.storage.get('trainings', false);
-    entries = r ? JSON.parse(r.value) : [];
+    const raw = localStorage.getItem('trener_trainings');
+    entries = raw ? JSON.parse(raw) : [];
   }catch(e){ entries = []; }
   try{
-    const r2 = await window.storage.get('trainingTypes', false);
-    types = r2 ? JSON.parse(r2.value) : [...DEFAULT_TYPES];
+    const rawTypes = localStorage.getItem('trener_trainingTypes');
+    types = rawTypes ? JSON.parse(rawTypes) : [...DEFAULT_TYPES];
   }catch(e){ types = [...DEFAULT_TYPES]; }
+  try{ templates = JSON.parse(localStorage.getItem('trener_templates') || '[]'); }catch(e){ templates = []; }
+  try{ skips = JSON.parse(localStorage.getItem('trener_skips') || '[]'); }catch(e){ skips = []; }
+  try{ extras = JSON.parse(localStorage.getItem('trener_extras') || '[]'); }catch(e){ extras = []; }
 }
 async function saveEntries(){
-  try{ await window.storage.set('trainings', JSON.stringify(entries), false); }catch(e){}
+  try{ localStorage.setItem('trener_trainings', JSON.stringify(entries)); }catch(e){}
 }
 async function saveTypes(){
-  try{ await window.storage.set('trainingTypes', JSON.stringify(types), false); }catch(e){}
+  try{ localStorage.setItem('trener_trainingTypes', JSON.stringify(types)); }catch(e){}
+}
+function saveSchedule(){
+  try{
+    localStorage.setItem('trener_templates', JSON.stringify(templates));
+    localStorage.setItem('trener_skips', JSON.stringify(skips));
+    localStorage.setItem('trener_extras', JSON.stringify(extras));
+  }catch(e){}
 }
 
 function populateTimeSelect(){
@@ -471,7 +918,13 @@ function reorderSections(){
 
 function renderList(){
   reorderSections();
-  const list = getPeriodEntries(currentPeriod).slice().sort((a,b)=>{
+  const periodList = getPeriodEntries(currentPeriod);
+  const grouped = currentPeriod!=='today';
+  const list = periodList.slice().sort((a,b)=>{
+    if(grouped){
+      if(a.date!==b.date) return a.date.localeCompare(b.date);
+      return a.time.localeCompare(b.time);
+    }
     if(a.date!==b.date) return b.date.localeCompare(a.date);
     return b.time.localeCompare(a.time);
   });
@@ -496,16 +949,26 @@ function renderList(){
   if(!list.length){
     container.innerHTML = '<div class="empty">Ще немає тренувань у цьому періоді.<br>Натисніть «Додати тренування» нижче.</div>';
   } else {
+    let lastDate = null;
     list.forEach(e=>{
+      if(grouped && e.date!==lastDate){
+        lastDate = e.date;
+        const d = new Date(e.date+'T00:00:00');
+        const wd = WEEKDAYS[d.getDay()];
+        const headerText = wd + ', ' + d.getDate();
+        const h = document.createElement('div');
+        h.className='day-group-header';
+        h.textContent = headerText;
+        container.appendChild(h);
+      }
       const div = document.createElement('div');
       div.className='entry';
       const fill = Math.round((e.count/e.cap)*100);
-      const dateLabel = currentPeriod==='today' ? '' : (' · '+e.date.split('-').reverse().join('.'));
       div.innerHTML = `
         <div class="time display">${e.time}</div>
         <div class="mid">
           <div class="type">${e.type} <span style="color:var(--muted); font-weight:500;">· ${e.club||''}</span></div>
-          <div class="meta">${e.count}/${e.cap} людей · ${fill}%${dateLabel}</div>
+          <div class="meta">${e.count}/${e.cap} людей · ${fill}%</div>
         </div>
         <div class="money display">${e.pay}₴</div>
         <button class="del" data-id="${e.id}">✕</button>
@@ -560,6 +1023,10 @@ function renderClubStats(list, total){
       </div>
       <div class="money display">${d.sum.toLocaleString('uk-UA')}₴</div>
     `;
+    if(currentPeriod==='week' || currentPeriod==='month'){
+      row.style.cursor='pointer';
+      row.addEventListener('click', ()=>openClubDetail(club, list));
+    }
     box.appendChild(row);
   });
   const totalRow = document.createElement('div');
@@ -570,7 +1037,7 @@ function renderClubStats(list, total){
   totalRow.innerHTML = `
     <div class="mid">
       <div class="type" style="color:var(--amber)">Разом по всіх клубах</div>
-      ${showFill ? `<div class="meta">Середня заповненість ${periodLabel}: ${overallFill}%</div>` : ''}
+      <div class="meta">${list.length} тренувань${showFill ? ' · сер. заповненість '+periodLabel+': '+overallFill+'%' : ''}</div>
     </div>
     <div class="money display" style="color:var(--amber)">${total.toLocaleString('uk-UA')}₴</div>
   `;
@@ -580,8 +1047,11 @@ function renderClubStats(list, total){
 function renderAll(){
   renderHeader();
   renderTodayStats();
+  renderDateStrip();
+  renderScheduleList();
   if(currentPeriod==='week') populateWeekSelect();
   renderList();
+  if(document.getElementById('statsView').style.display!=='none') renderStats();
 }
 
 function showToast(msg){
@@ -618,6 +1088,326 @@ function openSheet(){
 function closeSheet(){
   document.getElementById('overlay').classList.remove('open');
 }
+
+document.querySelectorAll('.main-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const view = tab.dataset.view;
+    document.getElementById('homeView').style.display = view==='home' ? '' : 'none';
+    document.getElementById('statsView').style.display = view==='stats' ? '' : 'none';
+    if(view==='stats') renderStats();
+  });
+});
+
+let selectedStatsMonth = isoToday().slice(0,7);
+
+function ddmmyyyy(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+}
+
+function renderStatEntryRow(e, kind){
+  const fillPct = Math.round((e.count/e.cap)*100);
+  const wd = WEEKDAYS[new Date(e.date+'T00:00:00').getDay()];
+  const div = document.createElement('div');
+  div.className = 'rank-row '+kind;
+  div.innerHTML = `
+    <div class="rmid">
+      <div class="rtype">${e.type} <span style="color:var(--muted); font-weight:500;">· ${e.club||''}</span></div>
+      <div class="rmeta">${wd}, ${ddmmyyyy(e.date)} · ${e.time} · ${e.count}/${e.cap} людей</div>
+    </div>
+    <div class="rfill display">${fillPct}%</div>
+  `;
+  return div;
+}
+
+function renderStats(){
+  renderDailyChart();
+  const monthEntries = entries.filter(e=>e.cap && e.date.startsWith(selectedStatsMonth));
+  const bestBox = document.getElementById('statsBest');
+  const worstBox = document.getElementById('statsWorst');
+  bestBox.innerHTML=''; worstBox.innerHTML='';
+
+  const best = monthEntries.filter(e=>(e.count/e.cap) > 0.8).sort((a,b)=>(b.count/b.cap)-(a.count/a.cap));
+  const worst = monthEntries.filter(e=>(e.count/e.cap) < 0.3).sort((a,b)=>(a.count/a.cap)-(b.count/b.cap));
+
+  if(best.length){
+    best.forEach(e=>bestBox.appendChild(renderStatEntryRow(e,'best')));
+  } else {
+    bestBox.innerHTML = '<div class="empty">За цей місяць немає тренувань із заповненістю понад 80%</div>';
+  }
+  if(worst.length){
+    worst.forEach(e=>worstBox.appendChild(renderStatEntryRow(e,'worst')));
+  } else {
+    worstBox.innerHTML = '<div class="empty">За цей місяць немає тренувань із заповненістю менше 30%</div>';
+  }
+}
+
+function daysInMonth(yyyyMm){
+  const [y,m] = yyyyMm.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+
+let chartBars = []; // for tap/click hit-testing
+
+function renderDailyChart(){
+  const nDays = daysInMonth(selectedStatsMonth);
+  const daily = new Array(nDays).fill(0);
+  entries.filter(e=>e.date.startsWith(selectedStatsMonth)).forEach(e=>{
+    const day = Number(e.date.split('-')[2]);
+    daily[day-1] += e.pay;
+  });
+
+  const canvas = document.getElementById('dailyChart');
+  const parent = canvas.parentElement;
+  const cssWidth = parent.clientWidth;
+  const cssHeight = parent.clientHeight || 170;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.round(cssWidth*dpr));
+  canvas.height = Math.max(1, Math.round(cssHeight*dpr));
+  canvas.style.width = cssWidth+'px';
+  canvas.style.height = cssHeight+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssWidth,cssHeight);
+  chartBars = [];
+
+  const total = daily.reduce((a,v)=>a+v,0);
+  if(total===0){
+    ctx.fillStyle = '#8B93A1';
+    ctx.font = '13px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Ще немає тренувань цього місяця', cssWidth/2, cssHeight/2);
+    return;
+  }
+
+  const padL=30, padB=18, padT=8, padR=4;
+  const chartW = cssWidth-padL-padR;
+  const chartH = cssHeight-padT-padB;
+  const max = Math.max(...daily, 1);
+  const slot = chartW/nDays;
+  const barW = Math.max(2, slot*0.6);
+
+  ctx.strokeStyle = '#2E333C';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT+chartH+0.5);
+  ctx.lineTo(padL+chartW, padT+chartH+0.5);
+  ctx.stroke();
+
+  ctx.fillStyle = '#8B93A1';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Math.round(max).toLocaleString('uk-UA'), padL-6, padT+8);
+  ctx.fillText('0', padL-6, padT+chartH+2);
+
+  daily.forEach((v,i)=>{
+    const x = padL + i*slot + (slot-barW)/2;
+    const barH = (v/max)*chartH;
+    const y = padT + chartH - barH;
+    ctx.fillStyle = v>0 ? '#FFB020' : '#2E333C';
+    const r = Math.min(3, barW/2);
+    ctx.beginPath();
+    if(barH>0){
+      ctx.moveTo(x, y+r);
+      ctx.arcTo(x,y,x+r,y,r);
+      ctx.lineTo(x+barW-r,y);
+      ctx.arcTo(x+barW,y,x+barW,y+r,r);
+      ctx.lineTo(x+barW, padT+chartH);
+      ctx.lineTo(x, padT+chartH);
+      ctx.closePath();
+      ctx.fill();
+    }
+    chartBars.push({x, y:padT, w:barW, h:chartH, day:i+1, value:v});
+  });
+
+  ctx.fillStyle = '#8B93A1';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = nDays>20 ? 5 : (nDays>10 ? 2 : 1);
+  daily.forEach((v,i)=>{
+    const day=i+1;
+    if(day===1 || day===nDays || day%labelStep===0){
+      const x = padL + i*slot + slot/2;
+      ctx.fillText(String(day), x, cssHeight-4);
+    }
+  });
+}
+
+document.getElementById('dailyChart').addEventListener('click', (ev)=>{
+  const rect = ev.target.getBoundingClientRect();
+  const x = ev.clientX - rect.left;
+  const bar = chartBars.find(b => x>=b.x && x<=b.x+b.w);
+  if(bar){
+    showToast(`${bar.day} число: ${bar.value.toLocaleString('uk-UA')} грн`);
+  }
+});
+
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('statsView').style.display!=='none') renderDailyChart();
+});
+
+document.getElementById('statsMonthPicker').addEventListener('change', (e)=>{
+  if(e.target.value){
+    selectedStatsMonth = e.target.value;
+    renderStats();
+  }
+});
+
+function openClubDetail(club, list){
+  const clubEntries = list.filter(e=>(e.club||'Без клубу')===club).slice().sort((a,b)=>{
+    if(a.date!==b.date) return a.date.localeCompare(b.date);
+    return a.time.localeCompare(b.time);
+  });
+  document.getElementById('clubOverlayTitle').textContent = club + ' · ' + clubEntries.length + ' тренувань';
+  const box = document.getElementById('clubOverlayList');
+  box.innerHTML='';
+  clubEntries.forEach(e=>{
+    const wd = WEEKDAYS[new Date(e.date+'T00:00:00').getDay()];
+    const fill = Math.round((e.count/e.cap)*100);
+    const div = document.createElement('div');
+    div.className='entry';
+    div.innerHTML = `
+      <div class="time display">${e.time}</div>
+      <div class="mid">
+        <div class="type">${e.type}</div>
+        <div class="meta">${wd}, ${ddmmyyyy(e.date)} · ${e.count}/${e.cap} людей · ${fill}%</div>
+      </div>
+      <div class="money display">${e.pay}₴</div>
+    `;
+    box.appendChild(div);
+  });
+  document.getElementById('clubOverlay').classList.add('open');
+}
+document.getElementById('clubOverlayClose').addEventListener('click', ()=>{
+  document.getElementById('clubOverlay').classList.remove('open');
+});
+document.getElementById('clubOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='clubOverlay') document.getElementById('clubOverlay').classList.remove('open');
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const payload = JSON.stringify({entries, types, templates, skips, extras}, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = isoToday();
+  a.href = url;
+  a.download = `zarplata-backup-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Копію збережено ✓');
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!Array.isArray(data.entries)) throw new Error('bad format');
+    entries = data.entries;
+    types = Array.isArray(data.types) && data.types.length ? data.types : [...DEFAULT_TYPES];
+    templates = Array.isArray(data.templates) ? data.templates : [];
+    skips = Array.isArray(data.skips) ? data.skips : [];
+    extras = Array.isArray(data.extras) ? data.extras : [];
+    await saveEntries();
+    await saveTypes();
+    saveSchedule();
+    renderAll();
+    renderDateStrip();
+    renderScheduleList();
+    showToast('Дані завантажено ✓');
+  }catch(err){
+    showToast('Не вдалося прочитати файл');
+  }
+  e.target.value = '';
+});
+
+document.getElementById('sfCap').addEventListener('input', updateSfPreview);
+document.getElementById('sfCount').addEventListener('input', updateSfPreview);
+document.getElementById('sfCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('scheduleFillOverlay').classList.remove('open');
+});
+document.getElementById('sfSaveBtn').addEventListener('click', async ()=>{
+  const cap = Number(document.getElementById('sfCap').value);
+  const countVal = document.getElementById('sfCount').value;
+  if(!cap || countVal===''){ showToast('Заповніть усі поля'); return; }
+  const count = Number(countVal);
+  const pay = calcPay(cap, count);
+  const {it, editingId} = fillContext;
+  if(editingId){
+    const idx = entries.findIndex(e=>e.id===editingId);
+    if(idx>-1) entries[idx] = {...entries[idx], cap, count, pay};
+  } else {
+    entries.push({
+      id: genId(), date: selectedScheduleDate, time: it.time, club: it.club,
+      type: it.type, cap, count, pay, sourceId: it.id
+    });
+  }
+  await saveEntries();
+  document.getElementById('scheduleFillOverlay').classList.remove('open');
+  renderDateStrip();
+  renderScheduleList();
+  renderAll();
+  showToast('Збережено ✓');
+});
+
+document.getElementById('detailCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('scheduleDetailOverlay').classList.remove('open');
+});
+document.getElementById('detailEditBtn').addEventListener('click', ()=>{
+  document.getElementById('scheduleDetailOverlay').classList.remove('open');
+  openScheduleFill(detailContext, detailContext.entry);
+});
+document.getElementById('detailDeleteBtn').addEventListener('click', async ()=>{
+  entries = entries.filter(e=>e.id!==detailContext.entry.id);
+  await saveEntries();
+  document.getElementById('scheduleDetailOverlay').classList.remove('open');
+  renderDateStrip();
+  renderScheduleList();
+  renderAll();
+  showToast('Запис видалено');
+});
+
+document.getElementById('addScheduleBtn').addEventListener('click', openScheduleAdd);
+document.getElementById('saCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('scheduleAddOverlay').classList.remove('open');
+});
+document.getElementById('saSaveBtn').addEventListener('click', ()=>{
+  const time = document.getElementById('saTime').value;
+  const club = document.getElementById('saClub').value;
+  const type = document.getElementById('saType').value;
+  const capVal = document.getElementById('saCap').value;
+  const cap = capVal ? Number(capVal) : null;
+  const repeat = document.getElementById('saRepeat').checked;
+  if(repeat){
+    const weekday = new Date(selectedScheduleDate+'T00:00:00').getDay();
+    templates.push({id: genId(), weekday, time, type, club, cap});
+  } else {
+    extras.push({id: genId(), date: selectedScheduleDate, time, type, club, cap});
+  }
+  saveSchedule();
+  document.getElementById('scheduleAddOverlay').classList.remove('open');
+  renderDateStrip();
+  renderScheduleList();
+  showToast(repeat ? 'Додано до щотижневого розкладу ✓' : 'Додано в розклад ✓');
+});
+
+document.getElementById('manageTemplatesBtn').addEventListener('click', ()=>{
+  renderManageTemplates();
+  document.getElementById('manageTemplatesOverlay').classList.add('open');
+});
+document.getElementById('manageTemplatesClose').addEventListener('click', ()=>{
+  document.getElementById('manageTemplatesOverlay').classList.remove('open');
+});
 
 document.getElementById('openAdd').addEventListener('click', openSheet);
 document.getElementById('cancelBtn').addEventListener('click', closeSheet);
@@ -666,6 +1456,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
     currentPeriod = tab.dataset.period;
     document.getElementById('weekPickerWrap').style.display = currentPeriod==='week' ? 'block' : 'none';
     document.getElementById('monthPickerWrap').style.display = currentPeriod==='month' ? 'block' : 'none';
+    document.querySelector('.schedule-section').style.display = currentPeriod==='today' ? '' : 'none';
     if(currentPeriod==='week') populateWeekSelect();
     renderList();
   });
@@ -687,6 +1478,7 @@ document.getElementById('monthPicker').addEventListener('change', (e)=>{
 
 (async function init(){
   document.getElementById('monthPicker').value = selectedMonth;
+  document.getElementById('statsMonthPicker').value = selectedStatsMonth;
   await loadData();
   renderAll();
 })();
