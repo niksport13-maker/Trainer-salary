@@ -8,10 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14171C;
-    --surface:#1E2229;
-    --surface2:#252A32;
-    --line:#2E333C;
+    --bg:#000000;
+    --surface:#0D0D0D;
+    --surface2:#161616;
+    --line:#2A2A2A;
     --amber:#FFB020;
     --amber-dim:#FFB02022;
     --teal:#5EEAD4;
@@ -21,6 +21,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  html{background:var(--bg);}
   body{
     background:var(--bg);
     color:var(--text);
@@ -44,7 +45,7 @@
   .date-row .display{font-size:26px;}
   .date-row .weekday{color:var(--amber); font-size:16px; font-weight:600;}
 
-  main{padding:4px 20px 0;}
+  main{padding:4px 20px 0; background:var(--bg);}
 
   .main-nav{display:flex; gap:18px; margin-top:14px; border-bottom:1px solid var(--line);}
   .main-tab{
@@ -230,19 +231,21 @@
   }
   .date-strip::-webkit-scrollbar{display:none;}
   .date-chip{
-    scroll-snap-align:start; flex:0 0 auto; width:36px; height:36px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    border-radius:9px; background:var(--surface);
-    border:1px solid var(--line); cursor:pointer;
+    scroll-snap-align:start; flex:0 0 auto; width:42px; text-align:center;
+    padding:4px 0 6px; border-radius:10px; background:var(--surface);
+    border:1px solid var(--line); cursor:pointer; position:relative;
     -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;
-    transform:translateZ(0); -webkit-transform:translateZ(0); backface-visibility:hidden;
+    overflow:hidden;
   }
   .date-chip.active{background:var(--amber-dim); border-color:var(--amber);}
-  .date-chip .wd{font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; line-height:1;}
+  .date-chip .wd{font-size:11px; color:var(--muted); text-transform:uppercase; font-weight:700; line-height:11px;}
   .date-chip.active .wd{color:var(--amber);}
-  .date-chip .dn{font-family:'Oswald',sans-serif; font-size:13px; line-height:1; color:var(--text);}
+  .date-chip .dn{font-family:'Oswald',sans-serif; font-size:18px; line-height:16px; color:var(--text); margin-top:2px;}
   .date-chip.active .dn{color:var(--amber);}
-  .date-chip .dot{width:3px; height:3px; border-radius:2px; background:var(--teal); margin-top:1px;}
+  .date-chip .dot{
+    width:3px; height:3px; border-radius:2px; background:var(--teal);
+    position:absolute; left:50%; bottom:4px; transform:translateX(-50%); margin:0;
+  }
   .date-chip .dot.empty{visibility:hidden;}
 
   .schedule-date-label{
@@ -261,6 +264,14 @@
   .toggle-row{display:flex; align-items:center; gap:10px; margin:14px 0 6px;}
   .toggle-row input{width:18px; height:18px;}
   .toggle-row label{font-size:13.5px; color:var(--text); font-weight:500;}
+
+  .entry.substitution{border-color:var(--danger); border-width:2px;}
+  .sub-badge{
+    display:inline-block; background:var(--danger); color:#2A0808;
+    font-size:9.5px; font-weight:700; text-transform:uppercase;
+    border-radius:5px; padding:1px 5px; margin-left:5px; letter-spacing:.03em;
+  }
+  .manage-link.sub-link{color:var(--danger); text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -274,11 +285,7 @@
   <div class="main-nav">
     <div class="main-tab active" data-view="home">Головна</div>
     <div class="main-tab" data-view="stats">Статистика</div>
-  </div>
-  <div class="backup-row">
-    <button class="backup-btn" id="exportBtn">⬇ Зберегти копію</button>
-    <button class="backup-btn" id="importBtn">⬆ Завантажити копію</button>
-    <input type="file" id="importFile" accept=".json" style="display:none;">
+    <div class="main-tab" data-view="backup">Копія даних</div>
   </div>
 </header>
 
@@ -357,57 +364,20 @@
     </div>
   </div>
 </div>
-</main>
 
-<button class="fab" id="openAdd">＋ Додати тренування</button>
-
-<div class="sheet-overlay" id="overlay">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2>Нове тренування</h2>
-
-    <div class="row2">
-      <div class="field">
-        <label>Дата</label>
-        <input type="date" id="fDate">
-      </div>
-      <div class="field">
-        <label>Час</label>
-        <select id="fTime"></select>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Клуб</label>
-      <select id="fClub"></select>
-    </div>
-
-    <div class="field">
-      <label>Тип тренування</label>
-      <select id="fType"></select>
-      <div class="newtype-row">
-        <input type="text" id="newTypeInput" placeholder="Додати свій тип...">
-        <button id="addTypeBtn">+</button>
-      </div>
-    </div>
-
-    <div class="row2">
-      <div class="field">
-        <label>Макс. місткість групи</label>
-        <input type="number" id="fCap" min="1" placeholder="10">
-      </div>
-      <div class="field">
-        <label>Кількість людей</label>
-        <input type="number" id="fCount" min="0" placeholder="8">
-      </div>
-    </div>
-
-    <div class="preview" id="livePreview">Заповніть місткість і кількість людей, щоб побачити суму</div>
-
-    <button class="save-btn" id="saveBtn">Зберегти тренування</button>
-    <button class="cancel-btn" id="cancelBtn">Скасувати</button>
+<div id="backupView" style="display:none;">
+  <div class="section-title"><span>Резервна копія даних</span></div>
+  <div class="empty" style="text-align:left; border-style:solid; margin-bottom:16px;">
+    Дані зберігаються локально у вашому браузері. Зробіть копію, щоб не втратити їх при очищенні кешу
+    або перенести на інший пристрій — просто завантажте копію там.
+  </div>
+  <div class="backup-row">
+    <button class="backup-btn" id="exportBtn">⬇ Зберегти копію</button>
+    <button class="backup-btn" id="importBtn">⬆ Завантажити копію</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
   </div>
 </div>
+</main>
 
 <div class="sheet-overlay" id="clubOverlay">
   <div class="sheet">
@@ -475,6 +445,10 @@
       <input type="checkbox" id="saRepeat">
       <label for="saRepeat">Повторювати щотижня в цей день тижня</label>
     </div>
+    <div class="toggle-row">
+      <input type="checkbox" id="saSubstitution">
+      <label for="saSubstitution">Заміна (буде виділена червоним і показана у всіх розділах)</label>
+    </div>
     <button class="save-btn" id="saSaveBtn">Додати</button>
     <button class="cancel-btn" id="saCancelBtn">Скасувати</button>
   </div>
@@ -486,6 +460,15 @@
     <h2>Регулярні тренування</h2>
     <div id="manageTemplatesList"></div>
     <button class="cancel-btn" id="manageTemplatesClose">Закрити</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="substitutionsOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="substitutionsTitle">Заміни за місяць</h2>
+    <div id="substitutionsList"></div>
+    <button class="cancel-btn" id="substitutionsClose">Закрити</button>
   </div>
 </div>
 
@@ -562,16 +545,46 @@ function getScheduleForDate(dateStr){
   const weekday = new Date(dateStr+'T00:00:00').getDay();
   const tItems = templates
     .filter(t=>t.weekday===weekday && !skips.includes(t.id+'|'+dateStr))
-    .map(t=>({id:t.id, kind:'template', time:t.time, type:t.type, club:t.club, cap:t.cap}));
+    .map(t=>({id:t.id, kind:'template', time:t.time, type:t.type, club:t.club, cap:t.cap, substitution:!!t.substitution}));
   const eItems = extras
     .filter(x=>x.date===dateStr)
-    .map(x=>({id:x.id, kind:'extra', time:x.time, type:x.type, club:x.club, cap:x.cap}));
+    .map(x=>({id:x.id, kind:'extra', time:x.time, type:x.type, club:x.club, cap:x.cap, substitution:!!x.substitution}));
   let items = [...tItems, ...eItems].map(it=>{
     const entry = entries.find(e=>e.sourceId===it.id && e.date===dateStr) || null;
     return {...it, entry};
   });
+  // keep already-filled trainings visible even if their recurring template/extra was later removed
+  const coveredIds = new Set(items.map(it=>it.id));
+  const orphanEntries = entries.filter(e=>e.date===dateStr && e.sourceId && !coveredIds.has(e.sourceId));
+  const orphanItems = orphanEntries.map(e=>({
+    id: e.sourceId, kind:'orphan', time:e.time, type:e.type, club:e.club, cap:e.cap,
+    substitution: isSubstitutionEntry(e), entry: e
+  }));
+  items = [...items, ...orphanItems];
   items.sort((a,b)=>a.time.localeCompare(b.time));
   return items;
+}
+
+function isSubstitutionEntry(entry){
+  if(!entry || !entry.sourceId) return false;
+  const t = templates.find(x=>x.id===entry.sourceId);
+  if(t) return !!t.substitution;
+  const ex = extras.find(x=>x.id===entry.sourceId);
+  if(ex) return !!ex.substitution;
+  return false;
+}
+
+function getAllSubstitutionsForMonth(yyyyMm){
+  const nDays = daysInMonth(yyyyMm);
+  let result = [];
+  for(let day=1; day<=nDays; day++){
+    const dateStr = yyyyMm+'-'+String(day).padStart(2,'0');
+    getScheduleForDate(dateStr).forEach(it=>{
+      if(it.substitution) result.push({...it, date:dateStr});
+    });
+  }
+  result.sort((a,b)=> a.date===b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
+  return result;
 }
 
 function renderDateStrip(){
@@ -579,7 +592,7 @@ function renderDateStrip(){
   if(!strip) return;
   strip.innerHTML='';
   const base = new Date();
-  for(let i=-7;i<=21;i++){
+  for(let i=-60;i<=60;i++){
     const d = new Date(base); d.setDate(base.getDate()+i);
     const iso = toISO(d);
     const hasItems = getScheduleForDate(iso).length>0;
@@ -606,7 +619,7 @@ function renderDateStrip(){
   }
   requestAnimationFrame(()=>{
     const active = strip.querySelector('.date-chip.active');
-    if(active) active.scrollIntoView({inline:'center', block:'nearest'});
+    if(active) active.scrollIntoView({inline:'start', block:'nearest'});
   });
 }
 
@@ -625,14 +638,15 @@ function renderScheduleList(){
   }
   items.forEach(it=>{
     const row = document.createElement('div');
-    row.className='entry';
+    row.className='entry'+(it.substitution?' substitution':'');
     const repeatBadge = it.kind==='template' ? '<span class="repeat-badge">↻</span>' : '';
+    const subBadge = it.substitution ? '<span class="sub-badge">Заміна</span>' : '';
     if(it.entry){
       const fill = Math.round((it.entry.count/it.entry.cap)*100);
       row.innerHTML = `
         <div class="time display">${it.time}</div>
         <div class="mid">
-          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}</div>
+          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}${subBadge}</div>
           <div class="meta">${it.entry.count}/${it.entry.cap} людей · ${fill}%</div>
         </div>
         <div class="money display">${it.entry.pay}₴</div>
@@ -642,7 +656,7 @@ function renderScheduleList(){
       row.innerHTML = `
         <div class="time display">${it.time}</div>
         <div class="mid">
-          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}</div>
+          <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span>${repeatBadge}${subBadge}</div>
           <div class="meta" style="color:var(--amber);">Натисніть, щоб заповнити</div>
         </div>
         <button class="del" data-role="remove">✕</button>
@@ -663,7 +677,7 @@ function renderScheduleList(){
 async function removeScheduleOccurrence(it){
   if(it.kind==='template'){
     skips.push(it.id+'|'+selectedScheduleDate);
-  } else {
+  } else if(it.kind==='extra'){
     extras = extras.filter(x=>x.id!==it.id);
   }
   if(it.entry){
@@ -739,6 +753,7 @@ function openScheduleAdd(){
   populateSelect('saType', types);
   document.getElementById('saCap').value='';
   document.getElementById('saRepeat').checked=false;
+  document.getElementById('saSubstitution').checked=false;
   const d = new Date(selectedScheduleDate+'T00:00:00');
   document.getElementById('scheduleAddTitle').textContent = 'Додати в розклад · '+WEEKDAYS[d.getDay()]+', '+ddmmyyyy(selectedScheduleDate);
   document.getElementById('scheduleAddOverlay').classList.add('open');
@@ -833,41 +848,6 @@ function saveSchedule(){
   }catch(e){}
 }
 
-function populateTimeSelect(){
-  const sel = document.getElementById('fTime');
-  sel.innerHTML='';
-  for(let h=7;h<=21;h++){
-    for(let m=0;m<60;m+=15){
-      if(h===21 && m>0) break;
-      const val = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-      const opt = document.createElement('option');
-      opt.value = val; opt.textContent = val;
-      sel.appendChild(opt);
-    }
-  }
-  const now = new Date();
-  const roundedH = Math.min(21, Math.max(7, now.getHours()));
-  sel.value = String(roundedH).padStart(2,'0')+':00';
-}
-function populateClubSelect(){
-  const sel = document.getElementById('fClub');
-  sel.innerHTML='';
-  CLUBS.forEach(c=>{
-    const opt = document.createElement('option');
-    opt.value=c; opt.textContent=c;
-    sel.appendChild(opt);
-  });
-}
-function populateTypeSelect(){
-  const sel = document.getElementById('fType');
-  sel.innerHTML='';
-  types.forEach(t=>{
-    const opt = document.createElement('option');
-    opt.value=t; opt.textContent=t;
-    sel.appendChild(opt);
-  });
-}
-
 function renderHeader(){
   const today = new Date();
   document.getElementById('todayDate').textContent = fmtDate(today);
@@ -914,13 +894,47 @@ function reorderSections(){
   } else {
     parent.insertBefore(entriesSec, clubsSec);
   }
+  entriesSec.style.display = currentPeriod==='today' ? 'none' : '';
+}
+
+function getPeriodDateRange(period){
+  if(period==='today') return [isoToday()];
+  if(period==='week'){
+    const start = selectedWeekStart || toISO(startOfWeek(isoToday()));
+    const startD = new Date(start+'T00:00:00');
+    const dates=[];
+    for(let i=0;i<7;i++){ const d=new Date(startD); d.setDate(startD.getDate()+i); dates.push(toISO(d)); }
+    return dates;
+  }
+  if(period==='month'){
+    const nDays = daysInMonth(selectedMonth);
+    const dates=[];
+    for(let day=1; day<=nDays; day++) dates.push(selectedMonth+'-'+String(day).padStart(2,'0'));
+    return dates;
+  }
+  return [];
 }
 
 function renderList(){
   reorderSections();
   const periodList = getPeriodEntries(currentPeriod);
   const grouped = currentPeriod!=='today';
-  const list = periodList.slice().sort((a,b)=>{
+
+  const unfilledSubs = [];
+  if(currentPeriod==='today'){
+    getPeriodDateRange(currentPeriod).forEach(dateStr=>{
+      getScheduleForDate(dateStr).forEach(it=>{
+        if(it.substitution && !it.entry) unfilledSubs.push({...it, date:dateStr, unfilled:true});
+      });
+    });
+  }
+
+  const displayList = [
+    ...periodList.map(e=>({...e, unfilled:false, substitution:isSubstitutionEntry(e)})),
+    ...unfilledSubs
+  ];
+
+  const list = displayList.slice().sort((a,b)=>{
     if(grouped){
       if(a.date!==b.date) return a.date.localeCompare(b.date);
       return a.time.localeCompare(b.time);
@@ -941,7 +955,7 @@ function renderList(){
     title = 'Тренування · ' + monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
   }
   document.getElementById('periodTitle').textContent = title;
-  const total = list.reduce((a,e)=>a+e.pay,0);
+  const total = periodList.reduce((a,e)=>a+e.pay,0);
   document.getElementById('periodTotal').textContent = total.toLocaleString('uk-UA')+' грн';
 
   const container = document.getElementById('entryList');
@@ -962,21 +976,38 @@ function renderList(){
         container.appendChild(h);
       }
       const div = document.createElement('div');
-      div.className='entry';
-      const fill = Math.round((e.count/e.cap)*100);
-      div.innerHTML = `
-        <div class="time display">${e.time}</div>
-        <div class="mid">
-          <div class="type">${e.type} <span style="color:var(--muted); font-weight:500;">· ${e.club||''}</span></div>
-          <div class="meta">${e.count}/${e.cap} людей · ${fill}%</div>
-        </div>
-        <div class="money display">${e.pay}₴</div>
-        <button class="del" data-id="${e.id}">✕</button>
-      `;
+      const subBadge = e.substitution ? '<span class="sub-badge">Заміна</span>' : '';
+      if(e.unfilled){
+        div.className='entry substitution';
+        div.innerHTML = `
+          <div class="time display">${e.time}</div>
+          <div class="mid">
+            <div class="type">${e.type} <span style="color:var(--muted); font-weight:500;">· ${e.club}</span>${subBadge}</div>
+            <div class="meta" style="color:var(--amber);">Натисніть, щоб заповнити</div>
+          </div>
+        `;
+        div.addEventListener('click', ()=>{
+          selectedScheduleDate = e.date;
+          openScheduleFill(e);
+        });
+      } else {
+        div.className='entry'+(e.substitution?' substitution':'');
+        const fill = Math.round((e.count/e.cap)*100);
+        div.innerHTML = `
+          <div class="time display">${e.time}</div>
+          <div class="mid">
+            <div class="type">${e.type} <span style="color:var(--muted); font-weight:500;">· ${e.club||''}</span>${subBadge}</div>
+            <div class="meta">${e.count}/${e.cap} людей · ${fill}%</div>
+          </div>
+          <div class="money display">${e.pay}₴</div>
+          <button class="del" data-id="${e.id}">✕</button>
+        `;
+      }
       container.appendChild(div);
     });
     container.querySelectorAll('.del').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
         entries = entries.filter(e=>e.id!==btn.dataset.id);
         await saveEntries();
         renderAll();
@@ -985,7 +1016,7 @@ function renderList(){
     });
   }
 
-  renderClubStats(list, total);
+  renderClubStats(periodList, total);
 }
 
 function avgFillOf(list){
@@ -1042,6 +1073,15 @@ function renderClubStats(list, total){
     <div class="money display" style="color:var(--amber)">${total.toLocaleString('uk-UA')}₴</div>
   `;
   box.appendChild(totalRow);
+
+  if(currentPeriod==='month'){
+    const subBtn = document.createElement('button');
+    subBtn.className = 'add-schedule-btn';
+    subBtn.style.marginTop = '12px';
+    subBtn.textContent = 'Заміни за місяць';
+    subBtn.addEventListener('click', openSubstitutionsOverlay);
+    box.appendChild(subBtn);
+  }
 }
 
 function renderAll(){
@@ -1061,34 +1101,6 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 1800);
 }
 
-function updatePreview(){
-  const cap = document.getElementById('fCap').value;
-  const count = document.getElementById('fCount').value;
-  const pay = calcPay(cap, count);
-  const el = document.getElementById('livePreview');
-  if(pay===null){
-    el.innerHTML = 'Заповніть місткість і кількість людей, щоб побачити суму';
-  } else {
-    const fill = cap>0 ? Math.round((count/cap)*100) : 0;
-    el.innerHTML = `Заповненість <b>${fill}%</b> → сума за тренування: <b>${pay} грн</b>`;
-  }
-}
-
-function openSheet(){
-  document.getElementById('fDate').value = isoToday();
-  populateTimeSelect();
-  populateClubSelect();
-  populateTypeSelect();
-  document.getElementById('fCap').value='';
-  document.getElementById('fCount').value='';
-  document.getElementById('newTypeInput').value='';
-  updatePreview();
-  document.getElementById('overlay').classList.add('open');
-}
-function closeSheet(){
-  document.getElementById('overlay').classList.remove('open');
-}
-
 document.querySelectorAll('.main-tab').forEach(tab=>{
   tab.addEventListener('click', ()=>{
     document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
@@ -1096,6 +1108,7 @@ document.querySelectorAll('.main-tab').forEach(tab=>{
     const view = tab.dataset.view;
     document.getElementById('homeView').style.display = view==='home' ? '' : 'none';
     document.getElementById('statsView').style.display = view==='stats' ? '' : 'none';
+    document.getElementById('backupView').style.display = view==='backup' ? '' : 'none';
     if(view==='stats') renderStats();
   });
 });
@@ -1263,16 +1276,27 @@ function openClubDetail(club, list){
   document.getElementById('clubOverlayTitle').textContent = club + ' · ' + clubEntries.length + ' тренувань';
   const box = document.getElementById('clubOverlayList');
   box.innerHTML='';
+  let lastDate = null;
   clubEntries.forEach(e=>{
-    const wd = WEEKDAYS[new Date(e.date+'T00:00:00').getDay()];
+    if(e.date!==lastDate){
+      lastDate = e.date;
+      const d = new Date(e.date+'T00:00:00');
+      const wd = WEEKDAYS[d.getDay()];
+      const h = document.createElement('div');
+      h.className='day-group-header';
+      h.textContent = wd + ', ' + d.getDate();
+      box.appendChild(h);
+    }
     const fill = Math.round((e.count/e.cap)*100);
+    const isSub = isSubstitutionEntry(e);
+    const subBadge = isSub ? '<span class="sub-badge">Заміна</span>' : '';
     const div = document.createElement('div');
-    div.className='entry';
+    div.className = 'entry'+(isSub?' substitution':'');
     div.innerHTML = `
       <div class="time display">${e.time}</div>
       <div class="mid">
-        <div class="type">${e.type}</div>
-        <div class="meta">${wd}, ${ddmmyyyy(e.date)} · ${e.count}/${e.cap} людей · ${fill}%</div>
+        <div class="type">${e.type}${subBadge}</div>
+        <div class="meta">${e.count}/${e.cap} людей · ${fill}%</div>
       </div>
       <div class="money display">${e.pay}₴</div>
     `;
@@ -1388,17 +1412,19 @@ document.getElementById('saSaveBtn').addEventListener('click', ()=>{
   const capVal = document.getElementById('saCap').value;
   const cap = capVal ? Number(capVal) : null;
   const repeat = document.getElementById('saRepeat').checked;
+  const substitution = document.getElementById('saSubstitution').checked;
   if(repeat){
     const weekday = new Date(selectedScheduleDate+'T00:00:00').getDay();
-    templates.push({id: genId(), weekday, time, type, club, cap});
+    templates.push({id: genId(), weekday, time, type, club, cap, substitution});
   } else {
-    extras.push({id: genId(), date: selectedScheduleDate, time, type, club, cap});
+    extras.push({id: genId(), date: selectedScheduleDate, time, type, club, cap, substitution});
   }
   saveSchedule();
   document.getElementById('scheduleAddOverlay').classList.remove('open');
   renderDateStrip();
   renderScheduleList();
-  showToast(repeat ? 'Додано до щотижневого розкладу ✓' : 'Додано в розклад ✓');
+  renderList();
+  showToast(substitution ? 'Заміну додано ✓' : (repeat ? 'Додано до щотижневого розкладу ✓' : 'Додано в розклад ✓'));
 });
 
 document.getElementById('manageTemplatesBtn').addEventListener('click', ()=>{
@@ -1409,44 +1435,46 @@ document.getElementById('manageTemplatesClose').addEventListener('click', ()=>{
   document.getElementById('manageTemplatesOverlay').classList.remove('open');
 });
 
-document.getElementById('openAdd').addEventListener('click', openSheet);
-document.getElementById('cancelBtn').addEventListener('click', closeSheet);
-document.getElementById('overlay').addEventListener('click', (e)=>{
-  if(e.target.id==='overlay') closeSheet();
-});
-document.getElementById('fCap').addEventListener('input', updatePreview);
-document.getElementById('fCount').addEventListener('input', updatePreview);
-
-document.getElementById('addTypeBtn').addEventListener('click', async ()=>{
-  const val = document.getElementById('newTypeInput').value.trim();
-  if(!val) return;
-  if(!types.includes(val)) types.push(val);
-  await saveTypes();
-  populateTypeSelect();
-  document.getElementById('fType').value = val;
-  document.getElementById('newTypeInput').value='';
-});
-
-document.getElementById('saveBtn').addEventListener('click', async ()=>{
-  const date = document.getElementById('fDate').value;
-  const time = document.getElementById('fTime').value;
-  const club = document.getElementById('fClub').value;
-  const type = document.getElementById('fType').value;
-  const cap = Number(document.getElementById('fCap').value);
-  const count = Number(document.getElementById('fCount').value);
-  if(!date || !cap || document.getElementById('fCount').value===''){
-    showToast('Заповніть усі поля');
-    return;
+function openSubstitutionsOverlay(){
+  const [y,m] = selectedMonth.split('-');
+  const monthDate = new Date(Number(y), Number(m)-1, 1);
+  document.getElementById('substitutionsTitle').textContent = 'Заміни · ' + monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
+  const box = document.getElementById('substitutionsList');
+  box.innerHTML='';
+  const subs = getAllSubstitutionsForMonth(selectedMonth);
+  if(!subs.length){
+    box.innerHTML = '<div class="empty">За цей місяць немає замін</div>';
+  } else {
+    subs.forEach(it=>{
+      const wd = WEEKDAYS[new Date(it.date+'T00:00:00').getDay()];
+      const row = document.createElement('div');
+      row.className='entry substitution';
+      if(it.entry){
+        const fill = Math.round((it.entry.count/it.entry.cap)*100);
+        row.innerHTML = `
+          <div class="time display">${it.time}</div>
+          <div class="mid">
+            <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span></div>
+            <div class="meta">${wd}, ${ddmmyyyy(it.date)} · ${it.entry.count}/${it.entry.cap} людей · ${fill}%</div>
+          </div>
+          <div class="money display">${it.entry.pay}₴</div>
+        `;
+      } else {
+        row.innerHTML = `
+          <div class="time display">${it.time}</div>
+          <div class="mid">
+            <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span></div>
+            <div class="meta" style="color:var(--amber);">${wd}, ${ddmmyyyy(it.date)} · не заповнено</div>
+          </div>
+        `;
+      }
+      box.appendChild(row);
+    });
   }
-  const pay = calcPay(cap, count);
-  entries.push({
-    id: Date.now().toString(36)+Math.random().toString(36).slice(2,7),
-    date, time, club, type, cap, count, pay
-  });
-  await saveEntries();
-  closeSheet();
-  renderAll();
-  showToast('Тренування додано ✓');
+  document.getElementById('substitutionsOverlay').classList.add('open');
+}
+document.getElementById('substitutionsClose').addEventListener('click', ()=>{
+  document.getElementById('substitutionsOverlay').classList.remove('open');
 });
 
 document.querySelectorAll('.tab').forEach(tab=>{
