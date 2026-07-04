@@ -74,31 +74,33 @@
   .hero-card{
     background:linear-gradient(155deg, var(--surface2), var(--surface));
     border:1px solid var(--line);
-    border-radius:20px;
-    padding:22px 20px 18px;
-    margin-bottom:16px;
+    border-radius:16px;
+    padding:14px 16px 12px;
+    margin-bottom:10px;
     position:relative;
     overflow:hidden;
   }
   .hero-card::after{
     content:"";
-    position:absolute; left:20px; right:20px; bottom:0;
-    height:3px; border-radius:3px;
+    position:absolute; left:16px; right:16px; bottom:0;
+    height:2px; border-radius:2px;
     background:linear-gradient(90deg, var(--amber), transparent);
   }
-  .hero-label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; font-weight:600;}
-  .hero-amount{font-size:44px; line-height:1; margin-top:6px; color:var(--amber);}
-  .hero-amount span{font-size:20px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:4px;}
+  .hero-card.month-card::after{background:linear-gradient(90deg, var(--teal), transparent);}
+  .hero-label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; font-weight:600;}
+  .hero-amount{font-size:30px; line-height:1.1; margin-top:4px; color:var(--amber);}
+  .hero-amount span{font-size:14px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:4px;}
+  .hero-card.month-card .hero-amount{color:var(--teal);}
 
   .stat-row{
-    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;
   }
   .stat-chip{
-    background:var(--surface); border:1px solid var(--line); border-radius:14px;
-    padding:12px 14px;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:8px 8px;
   }
-  .stat-chip .num{font-size:22px;}
-  .stat-chip .lbl{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .stat-chip .num{font-size:16px;}
+  .stat-chip .lbl{font-size:10px; color:var(--muted); margin-top:1px; line-height:1.2;}
 
   .section-title{
     font-size:13px; text-transform:uppercase; letter-spacing:.1em;
@@ -291,6 +293,21 @@
 
 <main>
 <div id="homeView">
+  <div class="hero-card month-card">
+    <div class="hero-label" id="curMonthLabel">Поточний місяць</div>
+    <div class="hero-amount"><span id="curMonthEarnings">0</span><span>грн</span></div>
+    <div class="stat-row">
+      <div class="stat-chip">
+        <div class="num display" id="curMonthCount">0</div>
+        <div class="lbl">тренувань</div>
+      </div>
+      <div class="stat-chip">
+        <div class="num display" id="curMonthFill">—</div>
+        <div class="lbl">заповненість</div>
+      </div>
+    </div>
+  </div>
+
   <div class="hero-card">
     <div class="hero-label">Заробіток за сьогодні</div>
     <div class="hero-amount"><span id="todayEarnings">0</span><span>грн</span></div>
@@ -497,6 +514,7 @@ function calcPay(cap, count){
   if(!cap || count===''||count===null||count===undefined) return null;
   cap = Number(cap); count = Number(count);
   if(cap<=0) return null;
+  if(count<=0) return 0;
   const bonusPerPerson = Math.max(0, count - cap/2) * RATE_PER_PERSON;
   const nearFullBonus = count >= (cap - PREMIUM_SLOTS + 1) ? RATE_FULL_BONUS : 0;
   const bonus = bonusPerPerson + nearFullBonus;
@@ -614,6 +632,7 @@ function renderDateStrip(){
       selectedScheduleDate = iso;
       strip.querySelectorAll('.date-chip').forEach(c=>c.classList.toggle('active', c.dataset.iso===iso));
       renderScheduleList();
+      if(currentPeriod==='today') renderList();
     });
     strip.appendChild(chip);
   }
@@ -868,9 +887,27 @@ function renderTodayStats(){
   }
 }
 
+function renderCurrentMonthStats(){
+  const curMonth = isoToday().slice(0,7);
+  const [y,m] = curMonth.split('-');
+  const monthDate = new Date(Number(y), Number(m)-1, 1);
+  const label = monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
+  document.getElementById('curMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1)+' (поточний місяць)';
+  const monthEntries = entries.filter(e=>e.date.startsWith(curMonth));
+  const sum = monthEntries.reduce((a,e)=>a+e.pay,0);
+  document.getElementById('curMonthEarnings').textContent = sum.toLocaleString('uk-UA');
+  document.getElementById('curMonthCount').textContent = monthEntries.length;
+  if(monthEntries.length){
+    const avgFill = monthEntries.reduce((a,e)=>a+(e.count/e.cap),0)/monthEntries.length;
+    document.getElementById('curMonthFill').textContent = Math.round(avgFill*100)+'%';
+  } else {
+    document.getElementById('curMonthFill').textContent = '—';
+  }
+}
+
 function getPeriodEntries(period){
   const today = isoToday();
-  if(period==='today') return entries.filter(e=>e.date===today);
+  if(period==='today') return entries.filter(e=>e.date===selectedScheduleDate);
   if(period==='week'){
     const wStart = new Date((selectedWeekStart||toISO(startOfWeek(today)))+'T00:00:00');
     const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
@@ -957,6 +994,7 @@ function renderList(){
   document.getElementById('periodTitle').textContent = title;
   const total = periodList.reduce((a,e)=>a+e.pay,0);
   document.getElementById('periodTotal').textContent = total.toLocaleString('uk-UA')+' грн';
+  document.getElementById('periodTotal').style.display = (currentPeriod==='week'||currentPeriod==='month') ? 'none' : '';
 
   const container = document.getElementById('entryList');
   container.innerHTML='';
@@ -1031,7 +1069,7 @@ function renderClubStats(list, total){
     box.innerHTML = '<div class="empty">Немає даних по клубах за цей період</div>';
     return;
   }
-  const showFill = currentPeriod==='month' || currentPeriod==='week';
+  const showFill = currentPeriod==='month' || currentPeriod==='week' || currentPeriod==='today';
   const byClub = {};
   CLUBS.forEach(c=>byClub[c] = {count:0, sum:0, fillSum:0});
   list.forEach(e=>{
@@ -1064,7 +1102,7 @@ function renderClubStats(list, total){
   totalRow.className='entry';
   totalRow.style.borderColor='var(--amber)';
   const overallFill = showFill ? Math.round((avgFillOf(list)||0)*100) : null;
-  const periodLabel = currentPeriod==='week' ? 'за тиждень' : 'за місяць';
+  const periodLabel = currentPeriod==='week' ? 'за тиждень' : (currentPeriod==='month' ? 'за місяць' : 'за день');
   totalRow.innerHTML = `
     <div class="mid">
       <div class="type" style="color:var(--amber)">Разом по всіх клубах</div>
@@ -1087,6 +1125,7 @@ function renderClubStats(list, total){
 function renderAll(){
   renderHeader();
   renderTodayStats();
+  renderCurrentMonthStats();
   renderDateStrip();
   renderScheduleList();
   if(currentPeriod==='week') populateWeekSelect();
@@ -1445,8 +1484,17 @@ function openSubstitutionsOverlay(){
   if(!subs.length){
     box.innerHTML = '<div class="empty">За цей місяць немає замін</div>';
   } else {
+    let lastDate = null;
     subs.forEach(it=>{
-      const wd = WEEKDAYS[new Date(it.date+'T00:00:00').getDay()];
+      const d = new Date(it.date+'T00:00:00');
+      const wd = WEEKDAYS[d.getDay()];
+      if(it.date!==lastDate){
+        lastDate = it.date;
+        const h = document.createElement('div');
+        h.className='day-group-header';
+        h.textContent = wd + ', ' + d.getDate();
+        box.appendChild(h);
+      }
       const row = document.createElement('div');
       row.className='entry substitution';
       if(it.entry){
@@ -1455,7 +1503,7 @@ function openSubstitutionsOverlay(){
           <div class="time display">${it.time}</div>
           <div class="mid">
             <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span></div>
-            <div class="meta">${wd}, ${ddmmyyyy(it.date)} · ${it.entry.count}/${it.entry.cap} людей · ${fill}%</div>
+            <div class="meta">${it.entry.count}/${it.entry.cap} людей · ${fill}%</div>
           </div>
           <div class="money display">${it.entry.pay}₴</div>
         `;
@@ -1464,7 +1512,7 @@ function openSubstitutionsOverlay(){
           <div class="time display">${it.time}</div>
           <div class="mid">
             <div class="type">${it.type} <span style="color:var(--muted); font-weight:500;">· ${it.club}</span></div>
-            <div class="meta" style="color:var(--amber);">${wd}, ${ddmmyyyy(it.date)} · не заповнено</div>
+            <div class="meta" style="color:var(--amber);">не заповнено</div>
           </div>
         `;
       }
