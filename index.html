@@ -33,7 +33,7 @@
   header.top{
     padding:22px 20px 14px;
     position:sticky; top:0; z-index:5;
-    background:linear-gradient(180deg, var(--bg) 70%, transparent);
+    background:var(--bg);
   }
   .eyebrow{
     text-transform:uppercase; font-size:11px; letter-spacing:0.14em;
@@ -88,9 +88,9 @@
   }
   .hero-card.month-card::after{background:linear-gradient(90deg, var(--teal), transparent);}
   .hero-label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; font-weight:600;}
-  .hero-amount{font-size:30px; line-height:1.1; margin-top:4px; color:var(--amber);}
-  .hero-amount span{font-size:14px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:4px;}
-  .hero-card.month-card .hero-amount{color:var(--teal);}
+  .hero-amount{font-size:30px; line-height:1.1; margin-top:4px; color:var(--text);}
+  .hero-amount .unit{font-size:14px; color:var(--muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:4px;}
+  .hero-card.month-card .hero-amount{color:var(--text);}
 
   .stat-row{
     display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;
@@ -101,6 +101,17 @@
   }
   .stat-chip .num{font-size:16px;}
   .stat-chip .lbl{font-size:10px; color:var(--muted); margin-top:1px; line-height:1.2;}
+
+  .hero-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}
+  .hero-row .hero-card{margin-bottom:0; padding:12px 12px 10px;}
+  .hero-row .hero-label{font-size:10px; letter-spacing:.05em;}
+  .hero-row .hero-amount{font-size:27px; height:32px; display:flex; align-items:flex-end;}
+  .hero-row .month-card .hero-amount{font-size:22px;}
+  .hero-row .hero-amount .unit{font-size:12px; margin-left:2px;}
+  .hero-row .stat-row{grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;}
+  .hero-row .stat-chip{padding:6px 4px;}
+  .hero-row .stat-chip .num{font-size:13px;}
+  .hero-row .stat-chip .lbl{font-size:8.5px;}
 
   .section-title{
     font-size:13px; text-transform:uppercase; letter-spacing:.1em;
@@ -293,32 +304,34 @@
 
 <main>
 <div id="homeView">
-  <div class="hero-card month-card">
-    <div class="hero-label" id="curMonthLabel">Поточний місяць</div>
-    <div class="hero-amount"><span id="curMonthEarnings">0</span><span>грн</span></div>
-    <div class="stat-row">
-      <div class="stat-chip">
-        <div class="num display" id="curMonthCount">0</div>
-        <div class="lbl">тренувань</div>
-      </div>
-      <div class="stat-chip">
-        <div class="num display" id="curMonthFill">—</div>
-        <div class="lbl">заповненість</div>
+  <div class="hero-row">
+    <div class="hero-card">
+      <div class="hero-label">Заробіток за сьогодні</div>
+      <div class="hero-amount"><span id="todayEarnings">0</span><span class="unit">грн</span></div>
+      <div class="stat-row">
+        <div class="stat-chip">
+          <div class="num display" id="todayCount">0</div>
+          <div class="lbl">тренувань</div>
+        </div>
+        <div class="stat-chip">
+          <div class="num display" id="todayFill">—</div>
+          <div class="lbl">заповненість</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="hero-card">
-    <div class="hero-label">Заробіток за сьогодні</div>
-    <div class="hero-amount"><span id="todayEarnings">0</span><span>грн</span></div>
-    <div class="stat-row">
-      <div class="stat-chip">
-        <div class="num display" id="todayCount">0</div>
-        <div class="lbl">тренувань сьогодні</div>
-      </div>
-      <div class="stat-chip">
-        <div class="num display" id="todayFill">—</div>
-        <div class="lbl">середня заповненість</div>
+    <div class="hero-card month-card">
+      <div class="hero-label" id="curMonthLabel">Поточний місяць</div>
+      <div class="hero-amount"><span id="curMonthEarnings">0</span><span class="unit">грн</span></div>
+      <div class="stat-row">
+        <div class="stat-chip">
+          <div class="num display" id="curMonthCount">0</div>
+          <div class="lbl">тренувань</div>
+        </div>
+        <div class="stat-chip">
+          <div class="num display" id="curMonthFill">—</div>
+          <div class="lbl">заповненість</div>
+        </div>
       </div>
     </div>
   </div>
@@ -493,8 +506,8 @@
 
 <script>
 const RATE_BASE = 550, RATE_PER_PERSON = 30, RATE_FULL_BONUS = 100, PREMIUM_SLOTS = 3;
-const DEFAULT_TYPES = ["Reshape","Run","Cycle","Hot ass","Power","Games","Perfect core","Bikini body","TRX"];
-const CLUBS = ["Garag","Бажана","Жилянська","Оболонь"];
+const DEFAULT_TYPES = ["Reshape Full","Reshape Lower","Reshape Upper","Reshape Core","Run Full","Run Lower","Run Upper","Run Core","Cycle","Hot ass","Power","Games","Perfect core","Bikini body","TRX","Stretching","Pilatass"];
+const CLUBS = ["Garage","Бажана","Жилянська","Оболонь"];
 const WEEKDAYS = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"];
 const WEEKDAYS_SHORT = ["нд","пн","вт","ср","чт","пт","сб"];
 
@@ -766,10 +779,19 @@ function timeOptionsArray(){
   return arr;
 }
 
+const GARAGE_ONLY_TYPES = ["Reshape Full","Reshape Lower","Reshape Upper","Reshape Core","Run Full","Run Lower","Run Upper","Run Core"];
+
+function typesForClub(club){
+  if(club==='Garage'){
+    return types.filter(t=>GARAGE_ONLY_TYPES.includes(t) || t==='Stretching' || t==='Pilatass');
+  }
+  return types.filter(t=>!GARAGE_ONLY_TYPES.includes(t));
+}
+
 function openScheduleAdd(){
   populateSelect('saTime', timeOptionsArray());
   populateSelect('saClub', CLUBS);
-  populateSelect('saType', types);
+  populateSelect('saType', typesForClub(document.getElementById('saClub').value));
   document.getElementById('saCap').value='';
   document.getElementById('saRepeat').checked=false;
   document.getElementById('saSubstitution').checked=false;
@@ -785,13 +807,27 @@ function renderManageTemplates(){
     box.innerHTML = '<div class="empty">Ще немає регулярних тренувань</div>';
     return;
   }
-  templates.forEach(t=>{
+  const order = [1,2,3,4,5,6,0]; // Monday..Sunday
+  const sorted = templates.slice().sort((a,b)=>{
+    const oa = order.indexOf(a.weekday), ob = order.indexOf(b.weekday);
+    if(oa!==ob) return oa-ob;
+    return a.time.localeCompare(b.time);
+  });
+  let lastWeekday = null;
+  sorted.forEach(t=>{
+    if(t.weekday!==lastWeekday){
+      lastWeekday = t.weekday;
+      const h = document.createElement('div');
+      h.className='day-group-header';
+      h.textContent = WEEKDAYS[t.weekday];
+      box.appendChild(h);
+    }
     const row = document.createElement('div');
     row.className='entry';
     row.innerHTML = `
       <div class="mid">
         <div class="type">${t.type} <span style="color:var(--muted); font-weight:500;">· ${t.club}</span></div>
-        <div class="meta">${WEEKDAYS[t.weekday]} · ${t.time}</div>
+        <div class="meta">${t.time}</div>
       </div>
       <button class="del" data-role="del-template">✕</button>
     `;
@@ -852,6 +888,24 @@ async function loadData(){
   try{ templates = JSON.parse(localStorage.getItem('trener_templates') || '[]'); }catch(e){ templates = []; }
   try{ skips = JSON.parse(localStorage.getItem('trener_skips') || '[]'); }catch(e){ skips = []; }
   try{ extras = JSON.parse(localStorage.getItem('trener_extras') || '[]'); }catch(e){ extras = []; }
+
+  // one-time migration: rename club "Garag" -> "Garage" everywhere it's stored
+  let migrated = false;
+  entries.forEach(e=>{ if(e.club==='Garag'){ e.club='Garage'; migrated=true; } });
+  templates.forEach(t=>{ if(t.club==='Garag'){ t.club='Garage'; migrated=true; } });
+  extras.forEach(x=>{ if(x.club==='Garag'){ x.club='Garage'; migrated=true; } });
+  if(migrated){ await saveEntries(); saveSchedule(); }
+
+  // refresh training types list: drop old plain "Reshape"/"Run", add new split variants if missing
+  let typesChanged = false;
+  ["Reshape","Run"].forEach(old=>{
+    const i = types.indexOf(old);
+    if(i>-1){ types.splice(i,1); typesChanged = true; }
+  });
+  ["Reshape Full","Reshape Lower","Reshape Upper","Reshape Core","Run Full","Run Lower","Run Upper","Run Core","Stretching","Pilatass"].forEach(nt=>{
+    if(!types.includes(nt)){ types.push(nt); typesChanged = true; }
+  });
+  if(typesChanged) await saveTypes();
 }
 async function saveEntries(){
   try{ localStorage.setItem('trener_trainings', JSON.stringify(entries)); }catch(e){}
@@ -892,7 +946,7 @@ function renderCurrentMonthStats(){
   const [y,m] = curMonth.split('-');
   const monthDate = new Date(Number(y), Number(m)-1, 1);
   const label = monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
-  document.getElementById('curMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1)+' (поточний місяць)';
+  document.getElementById('curMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1);
   const monthEntries = entries.filter(e=>e.date.startsWith(curMonth));
   const sum = monthEntries.reduce((a,e)=>a+e.pay,0);
   document.getElementById('curMonthEarnings').textContent = sum.toLocaleString('uk-UA');
@@ -1444,6 +1498,10 @@ document.getElementById('addScheduleBtn').addEventListener('click', openSchedule
 document.getElementById('saCancelBtn').addEventListener('click', ()=>{
   document.getElementById('scheduleAddOverlay').classList.remove('open');
 });
+document.getElementById('saClub').addEventListener('change', (e)=>{
+  populateSelect('saType', typesForClub(e.target.value));
+});
+
 document.getElementById('saSaveBtn').addEventListener('click', ()=>{
   const time = document.getElementById('saTime').value;
   const club = document.getElementById('saClub').value;
