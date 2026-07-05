@@ -196,6 +196,7 @@
     background-position:right 12px center;
     padding-right:32px;
   }
+  #weekPicker, #monthPicker{ text-align:center; text-align-last:center; }
   .field input:focus, .field select:focus{outline:2px solid var(--amber); border-color:var(--amber);}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .preview{
@@ -929,8 +930,9 @@ function renderHeader(){
 
 function renderTodayStats(){
   const today = isoToday();
-  const todays = entries.filter(e=>e.date===today);
-  const sum = todays.reduce((a,e)=>a+e.pay,0);
+  const todaysAll = entries.filter(e=>e.date===today);
+  const todays = todaysAll.filter(e=>e.pay>0);
+  const sum = todaysAll.reduce((a,e)=>a+e.pay,0);
   document.getElementById('todayEarnings').textContent = sum.toLocaleString('uk-UA');
   document.getElementById('todayCount').textContent = todays.length;
   if(todays.length){
@@ -947,8 +949,9 @@ function renderCurrentMonthStats(){
   const monthDate = new Date(Number(y), Number(m)-1, 1);
   const label = monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
   document.getElementById('curMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1);
-  const monthEntries = entries.filter(e=>e.date.startsWith(curMonth));
-  const sum = monthEntries.reduce((a,e)=>a+e.pay,0);
+  const monthEntriesAll = entries.filter(e=>e.date.startsWith(curMonth));
+  const monthEntries = monthEntriesAll.filter(e=>e.pay>0);
+  const sum = monthEntriesAll.reduce((a,e)=>a+e.pay,0);
   document.getElementById('curMonthEarnings').textContent = sum.toLocaleString('uk-UA');
   document.getElementById('curMonthCount').textContent = monthEntries.length;
   if(monthEntries.length){
@@ -1125,18 +1128,19 @@ function renderClubStats(list, total){
   }
   const showFill = currentPeriod==='month' || currentPeriod==='week' || currentPeriod==='today';
   const byClub = {};
-  CLUBS.forEach(c=>byClub[c] = {count:0, sum:0, fillSum:0});
+  CLUBS.forEach(c=>byClub[c] = {count:0, allCount:0, sum:0, fillSum:0});
   list.forEach(e=>{
     const c = e.club || 'Без клубу';
-    if(!byClub[c]) byClub[c] = {count:0, sum:0, fillSum:0};
-    byClub[c].count++;
+    if(!byClub[c]) byClub[c] = {count:0, allCount:0, sum:0, fillSum:0};
+    if(e.pay>0) byClub[c].count++;
+    byClub[c].allCount++;
     byClub[c].sum += e.pay;
     byClub[c].fillSum += (e.count/e.cap);
   });
   Object.keys(byClub).forEach(club=>{
     const d = byClub[club];
-    if(d.count===0) return;
-    const fillPct = Math.round((d.fillSum/d.count)*100);
+    if(d.allCount===0) return;
+    const fillPct = Math.round((d.fillSum/d.allCount)*100);
     const row = document.createElement('div');
     row.className='entry';
     row.innerHTML = `
@@ -1152,6 +1156,7 @@ function renderClubStats(list, total){
     }
     box.appendChild(row);
   });
+  const paidCount = list.filter(e=>e.pay>0).length;
   const totalRow = document.createElement('div');
   totalRow.className='entry';
   totalRow.style.borderColor='var(--amber)';
@@ -1160,7 +1165,7 @@ function renderClubStats(list, total){
   totalRow.innerHTML = `
     <div class="mid">
       <div class="type" style="color:var(--amber)">Разом по всіх клубах</div>
-      <div class="meta">${list.length} тренувань${showFill ? ' · сер. заповненість '+periodLabel+': '+overallFill+'%' : ''}</div>
+      <div class="meta">${paidCount} тренувань${showFill ? ' · сер. заповненість '+periodLabel+': '+overallFill+'%' : ''}</div>
     </div>
     <div class="money display" style="color:var(--amber)">${total.toLocaleString('uk-UA')}₴</div>
   `;
