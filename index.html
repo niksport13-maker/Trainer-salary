@@ -140,7 +140,7 @@
   }
   .entry .mid{flex:1; min-width:0;}
   .entry .type{font-size:14.5px; font-weight:600;}
-  .entry .meta{font-size:12px; color:var(--muted); margin-top:2px;}
+  .entry .meta{font-size:12px; color:var(--muted); margin-top:2px; line-height:1.6;}
   .entry .money{font-family:'Oswald',sans-serif; font-size:17px; color:var(--text);}
   .entry .del{
     background:none; border:none; color:var(--muted); font-size:18px;
@@ -1127,15 +1127,18 @@ function renderClubStats(list, total){
     return;
   }
   const showFill = currentPeriod==='month' || currentPeriod==='week' || currentPeriod==='today';
+  const showDetailed = true;
   const byClub = {};
-  CLUBS.forEach(c=>byClub[c] = {count:0, allCount:0, sum:0, fillSum:0});
+  CLUBS.forEach(c=>byClub[c] = {count:0, allCount:0, sum:0, fillSum:0, fullClasses:0, bonusPeople:0});
   list.forEach(e=>{
     const c = e.club || 'Без клубу';
-    if(!byClub[c]) byClub[c] = {count:0, allCount:0, sum:0, fillSum:0};
+    if(!byClub[c]) byClub[c] = {count:0, allCount:0, sum:0, fillSum:0, fullClasses:0, bonusPeople:0};
     if(e.pay>0) byClub[c].count++;
     byClub[c].allCount++;
     byClub[c].sum += e.pay;
     byClub[c].fillSum += (e.count/e.cap);
+    if(e.count===e.cap) byClub[c].fullClasses++;
+    byClub[c].bonusPeople += Math.max(0, e.count - e.cap/2);
   });
   Object.keys(byClub).forEach(club=>{
     const d = byClub[club];
@@ -1143,10 +1146,13 @@ function renderClubStats(list, total){
     const fillPct = Math.round((d.fillSum/d.allCount)*100);
     const row = document.createElement('div');
     row.className='entry';
+    const meta = showDetailed
+      ? `<div>${d.count}/${d.allCount} тренувань, заповненість ${fillPct}%</div><div>Бонусних людей ${Math.round(d.bonusPeople)}, повних класів ${d.fullClasses}</div>`
+      : `<div>${d.count} тренувань${showFill ? ', заповненість '+fillPct+'%' : ''}</div>`;
     row.innerHTML = `
       <div class="mid">
         <div class="type">${club}</div>
-        <div class="meta">${d.count} тренувань${showFill ? ' · заповненість '+fillPct+'%' : ''}</div>
+        <div class="meta">${meta}</div>
       </div>
       <div class="money display">${d.sum.toLocaleString('uk-UA')}₴</div>
     `;
@@ -1157,15 +1163,20 @@ function renderClubStats(list, total){
     box.appendChild(row);
   });
   const paidCount = list.filter(e=>e.pay>0).length;
+  const totalFullClasses = list.filter(e=>e.count===e.cap).length;
+  const totalBonusPeople = Math.round(list.reduce((a,e)=>a+Math.max(0, e.count - e.cap/2),0));
   const totalRow = document.createElement('div');
   totalRow.className='entry';
   totalRow.style.borderColor='var(--amber)';
   const overallFill = showFill ? Math.round((avgFillOf(list)||0)*100) : null;
   const periodLabel = currentPeriod==='week' ? 'за тиждень' : (currentPeriod==='month' ? 'за місяць' : 'за день');
+  const totalMeta = showDetailed
+    ? `<div>${paidCount}/${list.length} тренувань, сер. заповненість ${overallFill}%</div><div>Бонусних людей ${totalBonusPeople}, повних класів ${totalFullClasses}</div>`
+    : `<div>${paidCount} тренувань${showFill ? ', сер. заповненість '+periodLabel+' '+overallFill+'%' : ''}</div>`;
   totalRow.innerHTML = `
     <div class="mid">
       <div class="type" style="color:var(--amber)">Разом по всіх клубах</div>
-      <div class="meta">${paidCount} тренувань${showFill ? ' · сер. заповненість '+periodLabel+': '+overallFill+'%' : ''}</div>
+      <div class="meta">${totalMeta}</div>
     </div>
     <div class="money display" style="color:var(--amber)">${total.toLocaleString('uk-UA')}₴</div>
   `;
