@@ -1137,7 +1137,7 @@ function renderClubStats(list, total){
     byClub[c].allCount++;
     byClub[c].sum += e.pay;
     byClub[c].fillSum += (e.count/e.cap);
-    if(e.count===e.cap) byClub[c].fullClasses++;
+    if(e.count >= (e.cap - PREMIUM_SLOTS + 1)) byClub[c].fullClasses++;
     byClub[c].bonusPeople += Math.max(0, e.count - e.cap/2);
   });
   Object.keys(byClub).forEach(club=>{
@@ -1163,7 +1163,7 @@ function renderClubStats(list, total){
     box.appendChild(row);
   });
   const paidCount = list.filter(e=>e.pay>0).length;
-  const totalFullClasses = list.filter(e=>e.count===e.cap).length;
+  const totalFullClasses = list.filter(e=>e.count >= (e.cap - PREMIUM_SLOTS + 1)).length;
   const totalBonusPeople = Math.round(list.reduce((a,e)=>a+Math.max(0, e.count - e.cap/2),0));
   const totalRow = document.createElement('div');
   totalRow.className='entry';
