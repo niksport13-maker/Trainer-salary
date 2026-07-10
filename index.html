@@ -196,7 +196,30 @@
     background-position:right 12px center;
     padding-right:32px;
   }
-  #weekPicker, #monthPicker{ text-align:center; text-align-last:center; }
+  #monthPicker{ text-align:center; text-align-last:center; }
+
+  .week-picker-btn{
+    width:100%; background:var(--surface2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 14px; height:46px; box-sizing:border-box;
+    display:flex; align-items:center; gap:10px; color:var(--text); font-size:15px;
+    font-family:'Inter',sans-serif; cursor:pointer;
+  }
+  .week-picker-btn .txt{flex:1; text-align:center;}
+  .week-picker-btn .chev{color:var(--muted); font-size:12px;}
+
+  .month-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .month-nav .m{font-size:17px;}
+  .month-nav button{
+    background:var(--surface2); border:1px solid var(--line); color:var(--text);
+    width:32px; height:32px; border-radius:8px; font-size:16px; cursor:pointer;
+  }
+  .week-row{
+    background:var(--surface2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 14px; margin-bottom:8px; font-size:14px; text-align:center; position:relative; cursor:pointer;
+  }
+  .week-row.active{border-color:var(--amber); background:var(--amber-dim); color:var(--amber);}
+  .week-row .n{color:var(--muted); font-size:11px; position:absolute; right:14px; top:50%; transform:translateY(-50%);}
+  .week-row.active .n{color:var(--amber);}
   .field input:focus, .field select:focus{outline:2px solid var(--amber); border-color:var(--amber);}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .preview{
@@ -352,8 +375,12 @@
     <button class="manage-link" id="manageTemplatesBtn">Керувати повторюваними тренуваннями</button>
   </div>
 
-  <div class="field" id="weekPickerWrap" style="display:none; margin:10px 2px 4px;">
-    <select id="weekPicker"></select>
+  <div id="weekPickerWrap" style="display:none; margin:10px 2px 4px;">
+    <button class="week-picker-btn" id="weekPickerBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B93A1" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+      <span class="txt" id="weekPickerLabel">—</span>
+      <span class="chev">▾</span>
+    </button>
   </div>
 
   <div class="field" id="monthPickerWrap" style="display:none; margin:10px 2px 4px;">
@@ -485,6 +512,20 @@
   </div>
 </div>
 
+<div class="sheet-overlay" id="weekPickerOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Обрати тиждень</h2>
+    <div class="month-nav">
+      <button id="wpPrevMonth">‹</button>
+      <div class="m display" id="wpMonthLabel">—</div>
+      <button id="wpNextMonth">›</button>
+    </div>
+    <div id="wpWeekList"></div>
+    <button class="cancel-btn" id="wpClose">Закрити</button>
+  </div>
+</div>
+
 <div class="sheet-overlay" id="manageTemplatesOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -523,6 +564,7 @@ let extras = [];     // one-off (non-recurring) schedule additions
 let selectedScheduleDate = isoToday();
 let fillContext = null;
 let detailContext = null;
+let wpMonth = null; // yyyy-mm currently shown in the week picker
 
 function calcPay(cap, count){
   if(!cap || count===''||count===null||count===undefined) return null;
@@ -554,18 +596,6 @@ function toISO(d){
 }
 function ddmm(d){
   return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
-}
-function getWeeksWithEntries(){
-  const set = new Set();
-  entries.forEach(e=>{
-    set.add(toISO(startOfWeek(e.date)));
-  });
-  const starts = Array.from(set).sort(); // ascending ISO string sort works for dates
-  return starts.map(iso=>{
-    const start = new Date(iso+'T00:00:00');
-    const end = new Date(start); end.setDate(end.getDate()+6);
-    return {start,end};
-  });
 }
 // ===== Schedule (recurring + one-off classes by date) =====
 
@@ -844,38 +874,80 @@ function renderManageTemplates(){
   });
 }
 
-function populateWeekSelect(){
-  const sel = document.getElementById('weekPicker');
-  sel.innerHTML='';
-  const weeks = getWeeksWithEntries();
-  if(!weeks.length){
-    const opt = document.createElement('option');
-    opt.value=''; opt.textContent='Ще немає тренувань';
-    sel.appendChild(opt);
-    selectedWeekStart = null;
-    return;
+function getWeeksInMonth(yyyyMm){
+  const [y,m] = yyyyMm.split('-').map(Number);
+  const firstDay = new Date(y, m-1, 1);
+  const lastDay = new Date(y, m, 0);
+  let cur = new Date(firstDay);
+  const day = cur.getDay();
+  const diff = (day===0? -6 : 1) - day;
+  cur.setDate(cur.getDate()+diff);
+  const weeks = [];
+  while(cur <= lastDay){
+    const start = new Date(cur);
+    const end = new Date(cur); end.setDate(end.getDate()+6);
+    weeks.push({start,end});
+    cur.setDate(cur.getDate()+7);
   }
+  return weeks;
+}
+
+function updateWeekPickerLabel(){
+  const label = document.getElementById('weekPickerLabel');
+  if(!label) return;
+  if(!selectedWeekStart) selectedWeekStart = toISO(startOfWeek(isoToday()));
+  const wStart = new Date(selectedWeekStart+'T00:00:00');
+  const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
+  label.textContent = ddmm(wStart)+' – '+ddmm(wEnd)+'.'+wEnd.getFullYear();
+}
+
+function renderWeekPickerMonth(){
+  const [y,m] = wpMonth.split('-').map(Number);
+  const monthDate = new Date(y, m-1, 1);
+  const label = monthDate.toLocaleDateString('uk-UA', {month:'long', year:'numeric'});
+  document.getElementById('wpMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1);
+  const weeks = getWeeksInMonth(wpMonth);
   const curWeekStartISO = toISO(startOfWeek(isoToday()));
-  let hasCurrent = false;
+  const box = document.getElementById('wpWeekList');
+  box.innerHTML = '';
   weeks.forEach(w=>{
     const iso = toISO(w.start);
-    const opt = document.createElement('option');
-    opt.value = iso;
-    opt.textContent = ddmm(w.start)+' – '+ddmm(w.end)+'.'+w.end.getFullYear();
-    if(iso===curWeekStartISO) hasCurrent = true;
-    sel.appendChild(opt);
+    const row = document.createElement('div');
+    row.className = 'week-row' + (iso===selectedWeekStart ? ' active' : '');
+    const badge = iso===curWeekStartISO ? '<span class="n">поточний</span>' : '';
+    row.innerHTML = `<span>${ddmm(w.start)} – ${ddmm(w.end)}</span>${badge}`;
+    row.addEventListener('click', ()=>{
+      selectedWeekStart = iso;
+      updateWeekPickerLabel();
+      document.getElementById('weekPickerOverlay').classList.remove('open');
+      renderList();
+    });
+    box.appendChild(row);
   });
-  if(selectedWeekStart && weeks.some(w=>toISO(w.start)===selectedWeekStart)){
-    sel.value = selectedWeekStart;
-  } else if(hasCurrent){
-    selectedWeekStart = curWeekStartISO;
-    sel.value = selectedWeekStart;
-  } else {
-    // default to the most recent worked week
-    selectedWeekStart = toISO(weeks[weeks.length-1].start);
-    sel.value = selectedWeekStart;
-  }
 }
+
+function openWeekPicker(){
+  wpMonth = (selectedWeekStart || isoToday()).slice(0,7);
+  renderWeekPickerMonth();
+  document.getElementById('weekPickerOverlay').classList.add('open');
+}
+
+document.getElementById('weekPickerBtn').addEventListener('click', openWeekPicker);
+document.getElementById('wpClose').addEventListener('click', ()=>{
+  document.getElementById('weekPickerOverlay').classList.remove('open');
+});
+document.getElementById('wpPrevMonth').addEventListener('click', ()=>{
+  const [y,m] = wpMonth.split('-').map(Number);
+  const d = new Date(y, m-2, 1);
+  wpMonth = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  renderWeekPickerMonth();
+});
+document.getElementById('wpNextMonth').addEventListener('click', ()=>{
+  const [y,m] = wpMonth.split('-').map(Number);
+  const d = new Date(y, m, 1);
+  wpMonth = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  renderWeekPickerMonth();
+});
 
 async function loadData(){
   try{
@@ -1198,7 +1270,7 @@ function renderAll(){
   renderCurrentMonthStats();
   renderDateStrip();
   renderScheduleList();
-  if(currentPeriod==='week') populateWeekSelect();
+  if(currentPeriod==='week') updateWeekPickerLabel();
   renderList();
   if(document.getElementById('statsView').style.display!=='none') renderStats();
 }
@@ -1601,22 +1673,30 @@ document.getElementById('substitutionsClose').addEventListener('click', ()=>{
 
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click', ()=>{
+    const wasActive = tab.classList.contains('active');
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
-    currentPeriod = tab.dataset.period;
+    const newPeriod = tab.dataset.period;
+    if(wasActive && currentPeriod===newPeriod){
+      if(newPeriod==='week'){
+        selectedWeekStart = toISO(startOfWeek(isoToday()));
+        updateWeekPickerLabel();
+      } else if(newPeriod==='today'){
+        selectedScheduleDate = isoToday();
+        renderDateStrip();
+        renderScheduleList();
+      } else if(newPeriod==='month'){
+        selectedMonth = isoToday().slice(0,7);
+        document.getElementById('monthPicker').value = selectedMonth;
+      }
+    }
+    currentPeriod = newPeriod;
     document.getElementById('weekPickerWrap').style.display = currentPeriod==='week' ? 'block' : 'none';
     document.getElementById('monthPickerWrap').style.display = currentPeriod==='month' ? 'block' : 'none';
     document.querySelector('.schedule-section').style.display = currentPeriod==='today' ? '' : 'none';
-    if(currentPeriod==='week') populateWeekSelect();
+    if(currentPeriod==='week') updateWeekPickerLabel();
     renderList();
   });
-});
-
-document.getElementById('weekPicker').addEventListener('change', (e)=>{
-  if(e.target.value){
-    selectedWeekStart = e.target.value;
-    renderList();
-  }
 });
 
 document.getElementById('monthPicker').addEventListener('change', (e)=>{
